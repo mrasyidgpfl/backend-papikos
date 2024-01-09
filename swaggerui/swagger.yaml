@@ -1,0 +1,1982 @@
+openapi: 3.0.3
+info:
+  title: PAPIKOS API DOCUMENTATION 3.0
+  description: Papikos API documentation.
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: rasyid.wijaya@shopee.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+servers:
+  - url: https://localhost:8080/docs
+security:
+  - BearerAuth: []
+paths:
+  /:
+    post:
+      tags:
+        - homepage
+      summary: Where available and searched houses are shown.
+      description: Where available and searched houses are shown.
+      parameters:
+        - in: query
+          name: searchType
+          schema:
+            type: string
+          required: false
+          description: The type of text to search in transactions' descriptions.
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: The text to search in transactions' descriptions.
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          required: false
+          description: Sort query by date, amount, or source/destination.
+        - in: query
+          name: sort
+          schema:
+            type: string
+          required: false
+          description: Sort query by ascending or descending.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          required: false
+          description: The number of houses to return.
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          required: false
+          description: The number of the page (queries) that you want to get.
+      requestBody:
+        $ref: '#/components/requestBodies/HomepageReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Houses'
+
+
+  /signin:
+    post:
+      tags:
+        - authentication
+      summary: Sign in to get JWT token.
+      description: Sign in to get JWT token.
+      requestBody:
+        $ref: '#/components/requestBodies/CredentialsBody'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IDToken'
+        '400':
+          description: Field Required Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+  /signup:
+    post:
+      tags:
+        - authentication
+      summary: Sign up to get registered.
+      description: Sign up to get registered.
+      requestBody:
+        $ref: '#/components/requestBodies/SignUpBody'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registered'
+        '400':
+          description: Field Required Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '409':
+          description: Duplicate Email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusConflictError'
+
+  /signout:
+    get:
+      tags:
+        - authentication
+      summary: To sign off.
+      description: To sign off.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignOutRes'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+
+  /topups:
+    post:
+      tags:
+        - top up wallet
+      summary: To top up wallet balance.
+      description: To top up wallet balance.
+      requestBody:
+        $ref: '#/components/requestBodies/TopUpBody'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopUpRes'
+        '400':
+          description: Field Required Error / Amount too low / Amount too high
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Source / User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+  /houses/{houseId}:
+    get:
+      tags:
+        - houses
+      summary: To show a house.
+      description: To show a house.
+      parameters:
+        - in: path
+          name: houseId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the house to get
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HouseRes'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Source / User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+    patch:
+      tags:
+        - houses
+      summary: To update a house's info.
+      description: To show a house's info.
+      parameters:
+        - in: path
+          name: houseId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the house to update
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateHouseReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateHouseRes'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Source / User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+    delete:
+      tags:
+        - houses
+      summary: To delete a house.
+      description: To delete a house.
+      parameters:
+        - in: path
+          name: houseId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the house to get
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteHouseRes'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+
+  /houses:
+    post:
+      tags:
+        - houses
+      summary: To add a house.
+      description: To add a house.
+      requestBody:
+        $ref: '#/components/requestBodies/AddHouseBody'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddHouseRes'
+        '400':
+          description: Field Required Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+
+  /photos/{houseId}:
+    get:
+      tags:
+        - photos
+      summary: To get a house's photos, for booking page.
+      description: To get a house's photos, for booking page.
+      parameters:
+        - in: path
+          name: houseId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the house to get
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPhotosRes'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+  /photos/firsts/{houseId}:
+    get:
+      tags:
+        - photos
+      summary: To get a house's first photo, for homepage.
+      description: To get a house's first photo, for homepage.
+      parameters:
+        - in: path
+          name: houseId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the house to get
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFirstPhotoRes'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+    post:
+      tags:
+        - photos
+      summary: To upload photo(s) of a house.
+      description: To upload photo(s) of a house.
+      parameters:
+        - in: path
+          name: houseId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the house to get
+      requestBody:
+        $ref: '#/components/requestBodies/UploadPhotosReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadPhotosRes'
+        '400':
+          description: Field Required Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+
+  /users/details:
+    get:
+      tags:
+        - user profiles
+      summary: To get user's information.
+      description: To get user's details.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Details'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+    patch:
+      tags:
+        - user profiles
+      summary: To update user's profile.
+      description: To get update user's profile.
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateProfileBody'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateProfileRes'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+  /houses/bookings:
+    get:
+      tags:
+        - bookings
+      summary: To get all the user's bookings.
+      description: To get all the user's bookings.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingsRes'
+        '400':
+          description: Field Required Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+
+  /houses/bookings/{houseId}:
+    get:
+      tags:
+        - bookings
+      summary: To get a particular booking.
+      description: To get a particular booking.
+      parameters:
+        - in: path
+          name: houseId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the house to update
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingByIdRes'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+    post:
+      tags:
+        - bookings
+      summary: To add a booking.
+      description: To add a booking.
+      parameters:
+        - in: path
+          name: houseId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the house to update
+      requestBody:
+        $ref: '#/components/requestBodies/AddBookingReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddBookingRes'
+        '400':
+          description: Field Required Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+
+  /payment:
+    post:
+      tags:
+        - payment
+      summary: To pay a booking.
+      description: To pay a booking.
+      requestBody:
+        $ref: '#/components/requestBodies/PaymentReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRes'
+        '400':
+          description: Field Required Error, Already Paid Error, Innesuficient Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+  /pickups:
+    post:
+      tags:
+        - pickups
+      summary: To book and pay a pick up service.
+      description: To book and pay a pick up service.
+      requestBody:
+        $ref: '#/components/requestBodies/PickUpsReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PickUpsRes'
+        '400':
+          description: Field Required Error, Already Paid Error, Innesuficient Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+    patch:
+      tags:
+        - pickups
+      summary: To update the status of a particular pick up service.
+      description: To update the status of a particular pick up service.
+      requestBody:
+        $ref: '#/components/requestBodies/UpdatePUSReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatePUSRes'
+        '400':
+          description: Field Required Error, Already Paid Error, Innesuficient Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Pick up id or pick up status id not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+  /games/coins:
+    post:
+      tags:
+        - games
+      summary: To randomize coin flipping result.
+      description: To randomize coin flipping result.
+      requestBody:
+        $ref: '#/components/requestBodies/CoinsReq'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoinsRes'
+        '400':
+          description: Field Required Error, Already Paid Error, Innesuficient Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+
+
+components:
+  schemas:
+    Credentials:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: email6@mail.com
+        password:
+          type: string
+          example: pass123
+
+    IDToken:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              example: 200
+            code:
+              type: string
+              example: SIGNING IN SUCCESS
+            message:
+              type: string
+              example: User signed in successfully
+            data:
+              type: object
+              properties:
+                idToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJQQVBJS09TIiwiZXhwIjoxNjYxNzk2NzU0LCJpYXQiOjE2NjE3ODU5NTQsInVzZXIiOnsiaWQiOjkwMDAwNywiZW1haWwiOiJlbWFpbEBtYWlsLmNvbSIsImZ1bGxfbmFtZSI6ImZ1bGwgbmFtZSAxIiwiYWRkcmVzcyI6IlNDQkQsIEpha2FydGEgU2VsYXRhbiIsImNpdHlfaWQiOjE3NDMzLCJyb2xlIjoiVXNlciJ9fQ.GfR_0mru2y6nd0_Sig5zhG7CXLO7zBsQ6td_NrmjaAM
+    SignUpBody:
+      type: object
+      properties:
+        email:
+          type: string
+          example: email@mail.com
+        full_name:
+          type: string
+          example: full name 1
+        password:
+          type: string
+          example: pass123
+        city_id:
+          type: integer
+          format: int32
+          example: 17433
+        city_name:
+          type: string
+          example: Jakarta
+        address:
+          type: string
+          example: SCBD Jakarta Selatan
+
+
+    Registered:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: USER CREATED SUCCESSFULLY
+            message:
+              type: string
+              example: User sign up and registered
+            data:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 900007
+                email:
+                  type: string
+                  example: email@mail.com
+                password:
+                  type: string
+                  example:
+                full_name:
+                  type: string
+                  example: full name 1
+                address:
+                  type: string
+                  example: SCBD Jakarta Selatan
+                city_id:
+                  type: integer
+                  format: int32
+                  example: 17433
+                role:
+                  type: string
+                  example: User
+            wallet:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 100007
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900007
+                balance:
+                  type: integer
+                  format: int32
+                  example: 0
+            games_chances:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 7
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900007
+                chance:
+                  type: integer
+                  format: int32
+                  example: 0
+                history:
+                  type: integer
+                  format: int32
+                  example: 0
+
+    Details:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: USER DETAILS RETRIEVED
+            message:
+              type: string
+              example: UserRes details retrieved successfully
+            user_data:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 900007
+                email:
+                  type: string
+                  example: email@mail.com
+                full_name:
+                  type: string
+                  example: full name 1
+                address:
+                  type: string
+                  example: SCBD Jakarta Selatan
+                city_id:
+                  type: integer
+                  format: int32
+                  example: 17433
+                role:
+                  type: string
+                  example: User
+                wallet:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                      example: 100007
+                    user_id:
+                      type: integer
+                      format: int32
+                      example: 900007
+                    balance:
+                      type: integer
+                      format: int32
+                      example: 0
+                games_chances:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                      example: 7
+                    user_id:
+                      type: integer
+                      format: int32
+                      example: 900007
+                    chance:
+                      type: integer
+                      format: int32
+                      example: 0
+                    history:
+                      type: integer
+                      format: int32
+                      example: 0
+
+    UpdateProfileReq:
+      type: object
+      properties:
+        full_name:
+          type: string
+          example: Name 1
+        password:
+          type: string
+          example: password123
+        address:
+          type: string
+          example: Jakarta Pusat
+        city_id:
+          type: integer
+          format: int32
+          example: 17434
+        role:
+          type: string
+          example: host
+
+    UpdateProfileRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: USER PROFILE UPDATED
+            message:
+              type: string
+              example: User profile updated successfully
+            data:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 900007
+                email:
+                  type: string
+                  example: email@mail.com
+                password:
+                  type: string
+                  example:
+                full_name:
+                  type: string
+                  example: Name 1
+                address:
+                  type: string
+                  example: Jakarta Pusat
+                city_id:
+                  type: integer
+                  format: int32
+                  example: 17434
+                role:
+                  type: string
+                  example: host
+
+    Houses:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: HOUSES FOUND
+            message:
+              type: string
+              example: Houses successfully retrieved
+            houses_data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int32
+                  house_name:
+                    type: string
+                  user_id:
+                    type: integer
+                    format: int32
+                  price_per_night:
+                    type: integer
+                    format: int32
+                  description:
+                    type: string
+                  city_id:
+                    type: integer
+                    format: int32
+                  max_guest:
+                    type: integer
+                    format: int32
+                  created_date:
+                    type: string
+                  updated_date:
+                    type: string
+              example:
+                - id: 500002
+                  house_name: "house 2"
+                  user_id: 1000001
+                  price_per_night: 400000
+                  description: "House number two"
+                  city_id: 300002
+                  max_guest: 6
+                  created_date: "0001-01-01T00:00:00Z"
+                  updated_date: "0001-01-01T00:00:00Z"
+                - id: 500001
+                  house_name: "house 1"
+                  user_id: 1000001
+                  price_per_night: 300000
+                  description: "house numero uno"
+                  city_id: 300001
+                  max_guest: 4
+                  created_date: "0001-01-01T00:00:00Z"
+                  updated_date: "0001-01-01T00:00:00Z"
+
+    TopUpRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: TOP UP SUCCESS
+            message:
+              type: string
+              example: Top up success
+            data:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900005
+                wallet:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                      example: 100005
+                    user_id:
+                      type: integer
+                      format: int32
+                      example: 900005
+                    balance:
+                      type: integer
+                      format: int32
+                      example: 6100000
+                amount:
+                  type: integer
+                  format: int32
+                  example: 1550000
+                source_id:
+                  type: integer
+                  format: int32
+                  example: 990005
+
+    HouseRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: HOUSE RETRIEVAL SUCCESS
+            message:
+              type: string
+              example: House retrieved successfully
+            house:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 500001
+                house_name:
+                  type: string
+                  example: house 1
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 1000001
+                price_per_night:
+                  type: integer
+                  format: int32
+                  example: 300000
+                description:
+                  type: string
+                  example: house numero uno
+                city_id:
+                  type: integer
+                  format: int32
+                  example: 300001
+                city_name:
+                  type: string
+                  example: Jakarta Selatan
+                max_guest:
+                  type: integer
+                  format: int32
+                  example: 4
+                created_at:
+                  type: string
+                  example: 2022-08-18T17:46:11.197115Z
+
+    BookingsRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+            code:
+              type: string
+            message:
+              type: string
+            bookings_data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int32
+                  house_id:
+                    type: integer
+                    format: int32
+                  user_id:
+                    type: integer
+                    format: int32
+                  check_in_date:
+                    type: string
+                    format: date-time
+                  check_out_date:
+                    type: string
+                    format: date-time
+                  total_price:
+                    type: integer
+                    format: int32
+                example:
+                  - id: 400001
+                    house_id: 500001
+                    user_id: 900005
+                    check_in_date: "2022-09-18T12:00:00Z"
+                    check_out_date: "2022-09-23T10:00:00Z"
+                    total_price: 1500000
+                  - id: 400002
+                    house_id: 500001
+                    user_id: 900005,
+                    check_in_date: "2022-09-23T12:00:00Z"
+                    check_out_date: "2022-09-24T10:00:00Z"
+                    total_price: 3000000
+    BookingByIdRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: BOOKING RETRIEVAL SUCCESSFUL
+            message:
+              type: string
+              example: Booking retrieved successfully
+            reservation:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 400001
+                house_id:
+                  type: integer
+                  format: int32
+                  example: 500001
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900005
+                check_in_date:
+                  type: string
+                  format: date-time
+                  example: 2022-09-18T12:00:00Z
+                check_out_date:
+                  type: string
+                  format: date-time
+                  example: 2022-09-23T10:00:00Z
+                total_price:
+                  type: integer
+                  format: int32
+                  example: 1500000
+
+    AddBookingReq:
+      type: object
+      properties:
+        check_in_date:
+          type: string
+          format: date-time
+          example: 2022-09-23T12:00:00Z
+        check_out_date:
+          type: string
+          format: date-time
+          example: 2022-09-24T10:00:00Z
+
+    AddBookingRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: HOUSE BOOKING SUCCESS
+            message:
+              type: string
+              example: House booked successfully
+            reservation_data:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 400002
+                house_id:
+                  type: integer
+                  format: int32
+                  example: 500001
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900005
+                check_in_date:
+                  type: string
+                  format: date-time
+                  example: 2022-09-23T12:00:00Z
+                check_out_date:
+                  type: string
+                  format: date-time
+                  example: 2022-09-24T10:00:00Z
+                total_price:
+                  type: integer
+                  format: int32
+                  example: 300000
+
+    PaymentRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: BOOKING PAYMENT SUCCESSFUL
+            message:
+              type: string
+              example: Payment for reservation was successful
+            payment_data:
+              type: object
+              properties:
+                transaction:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                      example: 600002
+                    house_id:
+                      type: integer
+                      format: int32
+                      example: 500001
+                    user_id:
+                      type: integer
+                      format: int32
+                      example: 900005
+                    reservation_id:
+                      type: integer
+                      format: int32
+                      example: 400001
+                wallet:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                      example: 100005
+                    user_id:
+                      type: integer
+                      format: int32
+                      example: 900005
+                    balance:
+                      type: integer
+                      format: int32
+                      example: 7820000
+                booking_code:
+                  type: integer
+                  format: int32
+                  example: 400001
+                booking_info:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int32
+                      example: 400001
+                    house_id:
+                      type: integer
+                      format: int32
+                      example: 500001
+                    user_id:
+                      type: integer
+                      format: int32
+                      example: 900005
+                    check_in_date:
+                      type: string
+                      format: date-time
+                      example: 2022-09-23T12:00:00Z
+                    check_out_date:
+                      type: string
+                      format: date-time
+                      example: 2022-09-24T10:00:00Z
+                    total_price:
+                      type: integer
+                      format: int32
+                      example: 300000
+
+    PickUpsRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: PICK-UP BOOKING SUCCESSFUL
+            message:
+              type: string
+              example: Pick up booking successfully created and already paid status is now Pending Admin
+            reservation_data:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 700001
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900005
+                reservation_id:
+                  type: integer
+                  format: int32
+                  example: 400001
+                pick_up_status_id:
+                  type: integer
+                  format: int32
+                  example: 750001
+            wallet:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 100005
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900005
+                balance:
+                  type: integer
+                  format: int32
+                  example: 7820000
+
+    TopUpBody:
+      type: object
+      properties:
+        amount:
+          type: integer
+          format: int32
+          example: 1550000
+        source_id:
+          type: integer
+          format: int32
+          example: 990005
+
+    AddHouseBody:
+      type: object
+      properties:
+        house_name:
+          type: string
+          example: House 3
+        price_per_night:
+          type: integer
+          format: int32
+          example: 350000
+        description:
+          type: string
+          example: The third house
+        city_id:
+          type: integer
+          format: int32
+          example: 123123
+        city_name:
+          type: string
+          example: Bali
+        max_guest:
+          type: integer
+          format: int32
+          example: 5
+
+    AddHouseRes:
+      type: object
+      properties:
+        status_code:
+          type: integer
+          format: int32
+          example: 200
+        code:
+          type: string
+          example: ADD HOUSE SUCCESSFUL
+        message:
+          type: string
+          example: House created successfully
+        house:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+              example: 500004
+            house_name:
+              type: string
+              example: House 3
+            user_id:
+              type: integer
+              format: int32
+              example: 900007
+            price_per_night:
+              type: integer
+              format: int32
+              example: 350000
+            description:
+              type: string
+              example: The third house
+            city_id:
+              type: integer
+              format: int32
+              example: 123123
+            city_name:
+              type: string
+              example: Jakarta
+            max_guest:
+              type: integer
+              format: int32
+              example: 5
+            created_at:
+              type: string
+              example: 2022-08-30T11:58:06.926355677+07:00
+
+    UpdateHouseReq:
+      type: object
+      properties:
+        house_name:
+          type: string
+          example: House 3
+        price_per_night:
+          type: integer
+          format: int32
+          example: 450000
+        description:
+          type: string
+          example: Third house updated
+        max_guest:
+          type: integer
+          format: int32
+          example: 6
+
+    UpdateHouseRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: UPDATE HOUSE SUCCESSFUL
+            message:
+              type: string
+              example: House's information updated successfully
+            house:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 500003
+                house_name:
+                  type: string
+                  example: House 3
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900005
+                price_per_night:
+                  type: integer
+                  format: int32
+                  example: 450000
+                description:
+                  type: string
+                  example: Third house updated
+                city_id:
+                  type: integer
+                  format: int32
+                  example: 123123
+                city_name:
+                  type: string
+                  example: Jakarta
+                max_guest:
+                  type: integer
+                  format: int32
+                  example: 6
+                created_at:
+                  type: string
+                  example: 2022-08-24T11:35:33.21283Z
+                updated_at:
+                  type: string
+                  example: 2022-08-24T12:18:14.618154064+07:00
+
+    DeleteHouseRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 400
+            code:
+              type: string
+              example: DELETE HOUSE SUCCESSFUL
+            message:
+              type: string
+              example: Successfully deleted house
+
+    GetPhotosRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: PHOTOS RETRIEVAL SUCCESSFUL
+            message:
+              type: string
+              example: Photos retrieved successfully
+            photos:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int32
+                    example: 1
+                  house_id:
+                    type: integer
+                    format: int32
+                    example: 500004
+                  photo_url:
+                    type: string
+                    example:
+                      - https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img1_f8xqro.png
+                      - https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img2_sif6cz.png
+                      - https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img3_cd2nnw.png
+                      - https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img4_jjicmm.png
+
+
+    GetFirstPhotoRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: PHOTOS RETRIEVAL SUCCESSFUL
+            message:
+              type: string
+              example: Photos retrieved successfully
+            photo:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 1
+                house_id:
+                  type: integer
+                  format: int32
+                  example: 500004
+                photo_url:
+                  type: string
+                  example: https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img1_f8xqro.png
+
+    PaymentReq:
+      type: object
+      properties:
+        reservation_id:
+          type: integer
+          format: int32
+          example: 400001
+
+    PickUpsReq:
+      type: object
+      properties:
+        reservation_id:
+          type: integer
+          format: int32
+          example: 400001
+
+    UpdatePUSReq:
+      type: object
+      properties:
+        pick_up_id:
+          type: integer
+          format: int32
+          example: 700001
+        status:
+          type: string
+          example: Awaiting Check-in Date
+
+    UpdatePUSRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: STATUS UPDATE SUCCESSFUL
+            message:
+              type: string
+              example: Status successfully updated
+            status:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 750001
+                status:
+                  type: string
+                  example: Awaiting Check-in Date
+
+    CoinsReq:
+      type: object
+      properties:
+        coin_side:
+          type: string
+          example: heads
+
+    CoinsRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: COIN FLIP SUCCESS
+            message:
+              type: string
+              example: Games successfully executed and results are updated
+            flip_coins_data:
+              type: object
+              properties:
+                chances_left:
+                  type: integer
+                  format: int32
+                  example: 12
+                coin_side:
+                  type: string
+                  example: heads
+                game_result:
+                  type: string
+                  example: MAX
+                prize:
+                  type: integer
+                  format: int32
+                  example: 50000
+            wallet:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int32
+                  example: 100005
+                user_id:
+                  type: integer
+                  format: int32
+                  example: 900005
+                balance:
+                  type: integer
+                  format: int32
+                  example: 10050000
+
+    SignOutRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+              example: 200
+            code:
+              type: string
+              example: SIGN OUT SUCCESSFUL
+            message:
+              type: string
+              example: User signed out successfully token blacklisted
+
+    UploadPhotosReq:
+      type: object
+      properties:
+        photos_url:
+          type: array
+          items:
+            type: string
+            example:
+              - https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img1_f8xqro.png
+              - https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img2_sif6cz.png
+              - https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img3_cd2nnw.png
+              - https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img4_jjicmm.png
+
+    UploadPhotosRes:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status_code:
+              type: integer
+              format: int32
+            code:
+              type: string
+            message:
+              type: string
+            photos:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int32
+                  house_id:
+                    type: integer
+                    format: int32
+                  photo_url:
+                    type: string
+                example:
+                  - id: 1
+                    house_id: 500004
+                    photo_url: https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img1_f8xqro.png
+                  - id: 2
+                    house_id: 500004
+                    photo_url: https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img2_sif6cz.png
+                  - id: 3
+                    house_id: 500004
+                    photo_url: https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img3_cd2nnw.png
+                  - id: 4
+                    house_id: 500004
+                    photo_url: https://res.cloudinary.com/papikos/image/upload/v1661927636/papikos_default_img4_jjicmm.png
+
+    HomepageReq:
+      type: object
+      properties:
+        check_in_date:
+          type: string
+          example: 2022-09-04T18:19:55+07:00
+        check_out_date:
+          type: string
+          example: 2022-09-04T18:19:55+07:00
+
+    BadRequestError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        code:
+          type: string
+          example: FIELD_REQUIRED_ERROR
+        message:
+          type: string
+          example: field required error
+    UnauthorizedError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 401
+        code:
+          type: string
+          example: UNAUTHORIZED_ERROR
+        message:
+          type: string
+          example: unauthorized error
+    StatusConflictError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 409
+        code:
+          type: string
+          example: DUPLICATE EMAIL CONFLICT
+        message:
+          type: string
+          example: Email already registered, please try to sign up again with different email
+    NotFoundError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 404
+        code:
+          type: string
+          example: NOT_FOUND_ERROR
+        message:
+          type: string
+          example: record not found
+    InternalServerError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 500
+        code:
+          type: string
+          example: INTERNAL_SERVER_ERROR
+        message:
+          type: string
+          example: internal server error
+
+  requestBodies:
+    CredentialsBody:
+      description: Request example body for signing in
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Credentials'
+      required: true
+    SignUpBody:
+      description: Request example body for signing up
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SignUpBody'
+      required: true
+    HomepageReq:
+      description: Request example body for homepage
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HomepageReq'
+    TopUpBody:
+      description: Amount and source id
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TopUpBody'
+      required: true
+    AddHouseBody:
+      description: Request example body for add house
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddHouseBody'
+      required: true
+    AddBookingReq:
+      description: Request example body for add booking
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddBookingReq'
+      required: true
+    UpdateHouseReq:
+      description: Request example body for update house
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateHouseReq'
+      required: true
+    UpdateProfileBody:
+      description: Request example body for updating a profile
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateProfileReq'
+      required: true
+    PaymentReq:
+      description: Request example body for payment
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PaymentReq'
+      required: true
+    PickUpsReq:
+      description: Request example body for pickups
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PickUpsReq'
+      required: true
+    CoinsReq:
+      description: Request example body for coin flip
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CoinsReq'
+      required: true
+    UpdatePUSReq:
+      description: Request example body for update pick-up status
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdatePUSReq'
+      required: true
+    UploadPhotosReq:
+      description: Request example body for uploading photo(s)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UploadPhotosReq'
+      required: true
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
